@@ -4,18 +4,18 @@
 
 class KFState {
 public:
-	Eigen::VectorXd x;
-	Eigen::MatrixXd P;
+  Eigen::VectorXd x;
+  Eigen::MatrixXd P;
 
-	/**
-	 * Constructor
-	 */
-	KFState();
+  /**
+  * Constructor
+  */
+  KFState();
 
-	/**
-	 * Destructor
-	 */
-	virtual ~KFState();
+  /**
+  * Destructor
+  */
+  virtual ~KFState();
 };
 
 #endif

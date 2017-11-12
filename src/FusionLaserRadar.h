@@ -25,17 +25,17 @@ public:
   /**
   * Decide whether to use the laser sensor.
   */
-	void UseLaser(bool use=true) {use_laser_ = use;}
+  void UseLaser(bool use=true) {use_laser_ = use;}
 
   /**
   * Decide whether to use the radar sensor.
   */
-	void UseRadar(bool use=true) {use_radar_ = use;}
+  void UseRadar(bool use=true) {use_radar_ = use;}
 
   /**
   * Check if the sensor is allowed to be used.
   */
-	bool SensorIsOff(const MeasurementPackage &measurement_pack);
+  bool SensorIsOff(const MeasurementPackage &measurement_pack);
 
   /**
   * Run the whole flow of the Kalman Filter from here.
@@ -47,12 +47,12 @@ public:
   */
   KF* kfLaser_;
   KF* kfRadar_;
-	KFState state_;
+  KFState state_;
 
 private:
-	// Decide which sensor to use (Use both by default)
-	bool use_laser_;
-	bool use_radar_;
+  // Decide which sensor to use (Use both by default)
+  bool use_laser_;
+  bool use_radar_;
 
   // check whether the tracking toolbox was initialized or not (first measurement)
   bool is_initialized_;
@@ -63,20 +63,20 @@ private:
   // tool object used to compute Jacobian and RMSE
   Tools tools;
 
-	/**
-	 * Initialize the state from the first measurement
-	 */
-	void Init(const MeasurementPackage &measurement_pack);
+  /**
+  * Initialize the state from the first measurement
+  */
+  void Init(const MeasurementPackage &measurement_pack);
 
-	/**
-	 * Update the state from the laser measurement
-	 */
-	void UpdateLaser(const MeasurementPackage &measurement_pack);
+  /**
+  * Update the state from the laser measurement
+  */
+  void UpdateLaser(const MeasurementPackage &measurement_pack);
 
-	/**
-	 * Update the state from the radar measurement
-	 */
-	void UpdateRadar(const MeasurementPackage &measurement_pack);
+  /**
+  * Update the state from the radar measurement
+  */
+  void UpdateRadar(const MeasurementPackage &measurement_pack);
 };
 
 #endif /* FusionLaserRadar_H_ */

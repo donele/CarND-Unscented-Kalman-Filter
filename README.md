@@ -1,5 +1,21 @@
-# Extended Kalman Filter Project Starter Code
+# Extended Kalman Filter Project
 Self-Driving Car Engineer Nanodegree Program
+
+A sensor fusion is implemented to estimate the state of a moving object with lidar and radar measurements. A linear kalman filter is used for the lidar inputs, and an extended kalman filter is used for the radar measurement.
+
+This project involves the Term 2 Simulator which can be downloaded [here](https://github.com/udacity/self-driving-car-sim/releases)
+
+The fusion is accomplished in the class [FusionLaserRadar](https://github.com/donele/CarND-Extended-Kalman-Filter/blob/master/src/FusionLaserRadar.cpp) In FusionLaserRadar, two implementations of kalman filter is instantiated. One is the class [KFLaser](https://github.com/donele/CarND-Extended-Kalman-Filter/blob/master/src/KFLaser.cpp), which implements the linear kalman filter to be used with the lidar measurement. The other implementation is the class [KFRadar](https://github.com/donele/CarND-Extended-Kalman-Filter/blob/master/src/KFRadar.cpp). KFRadar implements an Extended Kalman Filter in order to accomodate the nonlinearity in the measurement function. Since the radar measurement occurs in the polar coordinate, a conversion must be made into the Cartesian space, and that is a nonlinear process.
+
+Both KFLadar and KFRaser are subclasses of the base class [KF](https://github.com/donele/CarND-Extended-Kalman-Filter/blob/master/src/KF.cpp). The class KF provides the common interface between the two subclasses through virtual function. It also implemnts the prediction process of the kalman filter, which is shared by the two subclasses.
+
+The starter code comes with just one kalman filter class that handles both lidar and radar measurement. And many of the kalman filter calculations are done in the class [FusionEKF](https://github.com/udacity/CarND-Extended-Kalman-Filter-Project/blob/master/src/FusionEKF.cpp). However, I decided to move all the calculations into the classes KF and its subclasses for better data encapsulation. And by using the inheritance between the kalman filter classes, I can reuse the code for the prediction process which is common between two types of kalman filters.
+
+
+
+
+
+===========================
 
 In this project you will utilize a kalman filter to estimate the state of a moving object of interest with noisy lidar and radar measurements. Passing the project requires obtaining RMSE values that are lower that the tolerance outlined in the project rubric. 
 

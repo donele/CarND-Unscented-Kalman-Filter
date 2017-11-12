@@ -25,11 +25,11 @@ public:
 
   /**
    * Updates the state by using Kalman Filter equations
-	 * @param stateIn state vector and covariance prior to update
+   * @param state state vector and covariance prior to update
    * @param dt elapsed time from k to k+1, in seconds
    * @param z The measurement at k+1
    */
-  virtual KFState Update(const KFState& stateIn, float dt, const Eigen::VectorXd& z);
+  virtual void Update(KFState& state, float dt, const Eigen::VectorXd& z);
 };
 
 #endif
