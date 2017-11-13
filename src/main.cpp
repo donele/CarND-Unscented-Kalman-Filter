@@ -26,13 +26,24 @@ std::string hasData(std::string s) {
   return "";
 }
 
-int main()
+int main(int argc, char* argv[])
 {
   uWS::Hub h;
 
   // Create a Kalman Filter instance
   FusionLaserRadar fusionLaserRadar;
-  //fusionLaserRadar.UseLaser(false);
+  if(argc == 2 && argv[1][0] == 'L')
+  {
+    fusionLaserRadar.UseRadar(false);
+    cout << "Using only lidar" << endl;
+  }
+  else if(argc == 2 && argv[1][0] == 'R')
+  {
+    fusionLaserRadar.UseLaser(false);
+    cout << "Using only radar" << endl;
+  }
+  cout << "For lidar only:\n  $ ./ExtendedKF L" << endl;
+  cout << "For radar only:\n  $ ./ExtendedKF R" << endl;
 
   // used to compute the RMSE later
   Tools tools;
