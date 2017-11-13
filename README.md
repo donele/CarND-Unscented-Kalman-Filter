@@ -59,7 +59,7 @@ void KF::Predict(KFState& state, float dt) {
 }
 ```
 
-The function `Predict()` is defined as a pure virtual function in `KF`, and it is up to each subclass to implement the functionality. An update process of the linear kalman filter is implemented in the class `KFLaser` as following.
+The function `Predict()` is defined as a pure virtual function in [`KF`](https://github.com/donele/CarND-Extended-Kalman-Filter/blob/master/src/KF.h), and it is up to each subclass to implement the functionality. An update process of the linear kalman filter is implemented in the class `KFLaser` as following.
 
 ```c++
 void KFLaser::Update(KFState& state, float dt, const VectorXd &z) {
@@ -102,13 +102,13 @@ void KFRadar::Update(KFState& state, float dt, const VectorXd &z) {
 }
 ```
 
-The measurement matrix `H_` in this case is not a constant, but rather a jacobian, recalculated each time a new measurement comes in.
+The measurement matrix `H_` in this case is not a constant, but rather a jacobian that is recalculated each time a new measurement comes in.
  
 ### Data Encapsulation
 
-The starter code comes with just one kalman filter class that handles both lidar and radar measurement. And many of the kalman filter calculations are done in the class [FusionEKF](https://github.com/udacity/CarND-Extended-Kalman-Filter-Project/blob/master/src/FusionEKF.cpp). However, I decided to move all the calculations into the classes KF and its subclasses for better data encapsulation. And by using the inheritance between the kalman filter classes, I can reuse the code for the prediction process which is common between two types of kalman filters. The convenience comes with a risk thought. If an algorithm with a different prediction method is implemented in the future, the inheritance structure may have to be rewritten.
+The starter code comes with just one kalman filter class that handles both lidar and radar measurement, and many of the kalman filter calculations are done in the class [FusionEKF](https://github.com/udacity/CarND-Extended-Kalman-Filter-Project/blob/master/src/FusionEKF.cpp). However, I decided to move all the calculations into the classes `KF` and its subclasses for better data encapsulation. And by using the inheritance between the kalman filter classes, I can reuse the code for the prediction process which is common between two types of kalman filters. A potential risk with this design is that if an algorithm with a different prediction method is implemented in the future, the inheritance structure may have to be rewritten.
 
-The state vector `x` and the covariant matrix `P` are wrapped in a class `KFState`, and it is passed to the functions `Predict()` and `Update()` by reference, to be updated inside the functions.
+The state vector `x` and the covariant matrix `P` are wrapped into a class `KFState`, and it is passed to the functions `Predict()` and `Update()` by reference, to be updated inside the functions.
 
 ```c++
 class KFState {
@@ -127,9 +127,9 @@ Only `x` and `P` are accessible from the class `FusionLaserRadar`, and all other
 
 I have tried to avoid evaluating temporary Eigen matrices, so that the compiler can have more oppotunities to optimize the Eigen template operations. More information on the efficient matrix evaluation can be found [here](http://eigen.tuxfamily.org/dox/TopicWritingEfficientProductExpression.html)
 
-I had attempted using matrices with fixed sizes, such as `Matrix4f`, instead of `MatrixXd` because it is supposed to be more efficient with smaller dimensions. According to the [Eigne documentation](https://eigen.tuxfamily.org/dox/group__tutorialmatrixclass.html), the fixed sizes are created in the stack, so it can save time creating objects in the heap. However, I have abandoned that approach because mixing fixed sizes and dynamic sizes produced errors event if the dimensions were correct. Many examples in the starter code uses the dynamic sizes, therefore I kept creating the dynamic sizes unconsciously. This may be also problematic if code is shared by multiple users and others did the same thing as I did.
+I had attempted using matrices with fixed sizes, such as `Matrix4f`, instead of `MatrixXd`, because it is supposed to be more efficient with smaller dimensions. According to the [Eigne documentation](https://eigen.tuxfamily.org/dox/group__tutorialmatrixclass.html), the fixed sizes are created in the stack, so it can save time creating objects in the heap. However, I have abandoned that approach because mixing fixed sizes and dynamic sizes produced errors event if the dimensions were correct. Many examples in the starter code uses the dynamic sizes, so I kept creating the dynamic sizes unconsciously. This may be also problematic if code is shared by multiple users and others did the same thing as I did.
 
-In order to reduce the number of object creation and copy assignments, I pass `KFState` by reference as shown above in the functions `ProcessMeasurement()`, `Predict()`, and `Update()`. If I passed them by value, the functions would have looked like this:
+In order to reduce the number of object creation and copy assignments, I pass `KFState` by reference as shown above in the functions `ProcessMeasurement()`, `Predict()`, and `Update()`. If I had chosen to pass them by value, the functions would have looked like this:
 
 ```c++
 KFState KF::ProcessMeasurement(const KFState& stateIn, float dt, const Eigen::VectorXd& z) {
@@ -151,11 +151,11 @@ KFState KF::Predict(const KFState& stateIn, float dt) {
 }
 ```
 
-There are many intermediate objects created, and they are all created in the heaps because `x` and `P` are of dynamic sizes, leadding to inefficiency. And these functions are called for each measurement, so the inefficiency will add up quickly. Despite the inefficiency, there seems to be an advantage in readability because it shows what each function returns, therefore what it does. In my actual implementation with passing by reference, one of input parameters is being modified within functions, so it is less obvious what each function does for the users of the functions. However, I thought the advantage of avoiding a lot of object creation seemed to outweigh the convenience of the alternative.
+There are many intermediate objects created, `statePred` and `stateOut`, and they are all created in the heaps because `x` and `P` are of dynamic sizes, leadding to inefficiency. And these functions are called whenever there is a new measurement, so the inefficiency will add up quickly. Despite the inefficiency, there seems to be an advantage in readability because it shows what each function returns, therefore what it does. In my actual implementation with passing by reference, one of the input parameters, `state`, is being modified within functions, so it is less obvious what each function does for the users of the functions. However, I thought the advantage not creating objects on the heap would outweigh the small convenience of the alternative.
 
 ### Flexibility
 
-The class FusionLaserRadar comes with two private variables, `use_laser_` and `use_radar_`. By changing theit values, one can easily turn on or off either sensors and not use for state estimation. For each measurement, a function `SensorIsOff()` is called to determin whether to use the sensor. From the command line, one can decide which sensor to use as following:
+The class FusionLaserRadar comes with two private variables, `use_laser_` and `use_radar_`. By changing theit values, one can easily turn on or off either sensors and not use them for state estimation. For each measurement, a function `SensorIsOff()` is called to check whether to use the sensor. From the command line, one can decide which sensor to use as following:
 
 ```bash
 $ ./ExtendedKF        (use both sensors)
@@ -166,6 +166,6 @@ $ ./ExtendedKF R      (use radar only)
 ### Scalability
 
 One aspect of scalable code is easiness of adding new functionality. As long as the state of the system is described by the four dimensional state vector `x (px, py, vx, vy)` and its covariant matrix, a new class of kalman filter can be added as a subclass of `KF`.
-The new class can reuse the `Predict()` function already written in `KF`, and the calls to `Predict()` and `Update()` are already defined in `KF::ProcessMeasurement()`.
-All that needs to be done is to write the function `Update()` for the new clas, add an instance in the class `FusionLaserRadar`, and write a call to the common interface `ProcessMeasurement()`.
+The new class can reuse the `Predict()` function already written in `KF`. The calls to `Predict()` and `Update()` are already defined in `KF::ProcessMeasurement()`.
+All that needs to be done is to write the function `Update()` for the new class, add an instance in `FusionLaserRadar`, and write a call to the interface `KF::ProcessMeasurement()`.
 
