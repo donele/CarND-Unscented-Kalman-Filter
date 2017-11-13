@@ -23,6 +23,18 @@ public:
   virtual ~KF();
 
   /**
+  * Process measurement by calling Predict() and Update()
+  * @param state state vector and covariance prior to update
+  * @param dt elapsed time from k to k+1, in seconds
+  * @param z The measurement at k+1
+  */
+  void ProcessMeasurement(KFState& state, float dt, const Eigen::VectorXd& z);
+
+protected:
+  float noise_a_;
+  float noise_y_;
+
+  /**
   * Prediction Predicts the state and the state covariance
   * using the process model
   * @param state state vector and covariance prior to update
@@ -37,10 +49,6 @@ public:
   * @param z The measurement at k+1
   */
   virtual void Update(KFState& state, float dt, const Eigen::VectorXd& z) = 0;
-
-private:
-  float noise_a_;
-  float noise_y_;
 
   /**
   * Calculate state transition matrix F

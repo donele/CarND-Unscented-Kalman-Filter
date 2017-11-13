@@ -22,9 +22,6 @@ KFLaser::KFLaser() {
 KFLaser::~KFLaser() {}
 
 void KFLaser::Update(KFState& state, float dt, const VectorXd &z) {
-  // Predict the state from the elapsed time.
-  Predict(state, dt);
-
   // Calculate Kalman gain
   MatrixXd K = state.P * H_trans_ * (H_ * state.P * H_trans_ + R_).inverse();
 

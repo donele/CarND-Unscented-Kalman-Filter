@@ -21,8 +21,6 @@ KFRadar::KFRadar() {
 KFRadar::~KFRadar() {}
 
 void KFRadar::Update(KFState& state, float dt, const VectorXd &z) {
-  Predict(state, dt);
-
   // Keep the value of theta in [-pi, pi]
   VectorXd y(3);
   y = z - tools.Cartesian2Polar(state.x);

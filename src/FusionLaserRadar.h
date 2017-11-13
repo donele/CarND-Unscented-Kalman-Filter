@@ -68,15 +68,6 @@ private:
   */
   void Init(const MeasurementPackage &measurement_pack);
 
-  /**
-  * Update the state from the laser measurement
-  */
-  void UpdateLaser(const MeasurementPackage &measurement_pack);
-
-  /**
-  * Update the state from the radar measurement
-  */
-  void UpdateRadar(const MeasurementPackage &measurement_pack);
 };
 
 #endif /* FusionLaserRadar_H_ */

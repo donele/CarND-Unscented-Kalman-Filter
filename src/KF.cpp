@@ -13,6 +13,11 @@ noise_y_(9.) {
 
 KF::~KF() {}
 
+void KF::ProcessMeasurement(KFState& state, float dt, const Eigen::VectorXd& z) {
+  Predict(state, dt);
+  Update(state, dt, z);
+}
+
 void KF::Predict(KFState& state, float dt) {
   // Do no predict if dt is very small.
   if(dt < 1e-6)

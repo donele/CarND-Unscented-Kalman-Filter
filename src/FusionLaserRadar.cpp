@@ -52,10 +52,14 @@ void FusionLaserRadar::ProcessMeasurement(const MeasurementPackage &measurement_
    * Use the sensor type to perform the update step.
    * Update the state and covariance matrices.
    ****************************************************************************/
+  float dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1000000.;
+
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR)
-    UpdateRadar(measurement_pack);
+    kfRadar_->ProcessMeasurement(state_, dt, measurement_pack.raw_measurements_);
   else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER)
-    UpdateLaser(measurement_pack);
+    kfLaser_->ProcessMeasurement(state_, dt, measurement_pack.raw_measurements_);
+
+  previous_timestamp_ = measurement_pack.timestamp_;
 
   // print the output
   //cout << "x = " << state_.x << endl;
@@ -82,16 +86,3 @@ void FusionLaserRadar::Init(const MeasurementPackage &measurement_pack) {
   previous_timestamp_ = measurement_pack.timestamp_;
 }
 
-void FusionLaserRadar::UpdateLaser(const MeasurementPackage &measurement_pack) {
-  float dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1000000.;
-  kfLaser_->Update(state_, dt, measurement_pack.raw_measurements_);
-
-  previous_timestamp_ = measurement_pack.timestamp_;
-}
-
-void FusionLaserRadar::UpdateRadar(const MeasurementPackage &measurement_pack) {
-  float dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1000000.;
-  kfRadar_->Update(state_, dt, measurement_pack.raw_measurements_);
-
-  previous_timestamp_ = measurement_pack.timestamp_;
-}

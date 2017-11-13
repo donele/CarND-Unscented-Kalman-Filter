@@ -23,6 +23,7 @@ public:
   */
   virtual ~KFLaser();
 
+private:
   /**
    * Updates the state by using Kalman Filter equations
    * @param state state vector and covariance prior to update
