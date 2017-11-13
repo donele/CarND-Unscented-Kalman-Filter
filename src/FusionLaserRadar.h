@@ -2,10 +2,6 @@
 #define FusionLaserRadar_H_
 
 #include "measurement_package.h"
-#include "Eigen/Dense"
-#include <vector>
-#include <string>
-#include <fstream>
 #include "KF.h"
 #include "KFState.h"
 #include "tools.h"

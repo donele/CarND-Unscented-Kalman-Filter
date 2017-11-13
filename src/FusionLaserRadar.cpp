@@ -1,14 +1,9 @@
 #include "FusionLaserRadar.h"
-#include "tools.h"
-#include "Eigen/Dense"
 #include "KFLaser.h"
 #include "KFRadar.h"
 #include <iostream>
 
 using namespace std;
-using Eigen::MatrixXd;
-using Eigen::VectorXd;
-using std::vector;
 
 /*
  * Constructor.

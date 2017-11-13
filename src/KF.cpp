@@ -1,8 +1,8 @@
 #include "KF.h"
-#include <iostream>
 
 using namespace std;
 using Eigen::MatrixXd;
+using Eigen::VectorXd;
 
 KF::KF()
 :noise_a_(9.),
