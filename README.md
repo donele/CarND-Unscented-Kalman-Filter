@@ -1,145 +1,171 @@
 # Extended Kalman Filter Project
 Self-Driving Car Engineer Nanodegree Program
 
-A sensor fusion is implemented to estimate the state of a moving object with lidar and radar measurements. A linear kalman filter is used for the lidar inputs, and an extended kalman filter is used for the radar measurement.
+A sensor fusion is implemented to estimate the state of a moving object with lidar and radar measurements. A linear kalman filter handles the lidar inputs, and an extended kalman filter is used for the radar measurement.
 
 This project involves the Term 2 Simulator which can be downloaded [here](https://github.com/udacity/self-driving-car-sim/releases)
 
-The fusion is accomplished in the class [FusionLaserRadar](https://github.com/donele/CarND-Extended-Kalman-Filter/blob/master/src/FusionLaserRadar.cpp) In FusionLaserRadar, two implementations of kalman filter is instantiated. One is the class [KFLaser](https://github.com/donele/CarND-Extended-Kalman-Filter/blob/master/src/KFLaser.cpp), which implements the linear kalman filter to be used with the lidar measurement. The other implementation is the class [KFRadar](https://github.com/donele/CarND-Extended-Kalman-Filter/blob/master/src/KFRadar.cpp). KFRadar implements an Extended Kalman Filter in order to accomodate the nonlinearity in the measurement function. Since the radar measurement occurs in the polar coordinate, a conversion must be made into the Cartesian space, and that is a nonlinear process.
+## Result
 
-Both KFLadar and KFRaser are subclasses of the base class [KF](https://github.com/donele/CarND-Extended-Kalman-Filter/blob/master/src/KF.cpp). The class KF provides the common interface between the two subclasses through virtual function. It also implemnts the prediction process of the kalman filter, which is shared by the two subclasses.
+The RMSE of the kalman filters for the first data set is as following.
 
-The starter code comes with just one kalman filter class that handles both lidar and radar measurement. And many of the kalman filter calculations are done in the class [FusionEKF](https://github.com/udacity/CarND-Extended-Kalman-Filter-Project/blob/master/src/FusionEKF.cpp). However, I decided to move all the calculations into the classes KF and its subclasses for better data encapsulation. And by using the inheritance between the kalman filter classes, I can reuse the code for the prediction process which is common between two types of kalman filters.
+|           |px       |py      |vx      |vy      |
+|:---------:|:-------:|:------:|:------:|:------:|
+|Laser+Radar|0.0983   |0.0852  |0.4071  |0.4682  |
 
+### Using only one sensor
 
+Using only one of two sensors, the RMSE is as following.
 
+|           |px       |py      |vx      |vy      |
+|:---------:|:-------:|:------:|:------:|:------:|
+|Laser only |0.1845   |0.1542  |0.6554  |0.4786  |
+|Radar only |0.2321   |0.3361  |0.5317  |0.7139  |
 
+The laser is doing better job at estimating the locations than the radar.
 
-===========================
+## Implementation
 
-In this project you will utilize a kalman filter to estimate the state of a moving object of interest with noisy lidar and radar measurements. Passing the project requires obtaining RMSE values that are lower that the tolerance outlined in the project rubric. 
+The fusion of the two sensors is accomplished in the class [FusionLaserRadar](https://github.com/donele/CarND-Extended-Kalman-Filter/blob/master/src/FusionLaserRadar.cpp). In the class, two implementations of kalman filters are instantiated. One is the class [KFLaser](https://github.com/donele/CarND-Extended-Kalman-Filter/blob/master/src/KFLaser.cpp), which implements the linear kalman filter to be used with the lidar measurement.
 
-This project involves the Term 2 Simulator which can be downloaded [here](https://github.com/udacity/self-driving-car-sim/releases)
+The other implementation is the class [KFRadar](https://github.com/donele/CarND-Extended-Kalman-Filter/blob/master/src/KFRadar.cpp). It implements an Extended Kalman Filter in order to accomodate the nonlinearity in the measurement function for radar. Since the radar measurement occurs in the polar coordinate, a conversion must be made into the Cartesian space, and that is a nonlinear process.
 
-This repository includes two files that can be used to set up and install [uWebSocketIO](https://github.com/uWebSockets/uWebSockets) for either Linux or Mac systems. For windows you can use either Docker, VMware, or even [Windows 10 Bash on Ubuntu](https://www.howtogeek.com/249966/how-to-install-and-use-the-linux-bash-shell-on-windows-10/) to install uWebSocketIO. Please see [this concept in the classroom](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/f758c44c-5e40-4e01-93b5-1a82aa4e044f/concepts/16cf4a78-4fc7-49e1-8621-3450ca938b77) for the required version and installation scripts.
+### Inheritance
 
-Once the install for uWebSocketIO is complete, the main program can be built and run by doing the following from the project top directory.
+Both `KFLaser` and `KFRadar` are subclasses of the base class [`KF`](https://github.com/donele/CarND-Extended-Kalman-Filter/blob/master/src/KF.cpp). The class `KF` provides a common interface that processes a measurement, `ProcessMeasurement()`.
 
-1. mkdir build
-2. cd build
-3. cmake ..
-4. make
-5. ./ExtendedKF
+```c++
+void KF::ProcessMeasurement(KFState& state, float dt, const Eigen::VectorXd& z) {
+  Predict(state, dt);
+  Update(state, dt, z);
+}
+```
 
-Tips for setting up your environment can be found [here](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/f758c44c-5e40-4e01-93b5-1a82aa4e044f/concepts/23d376c7-0195-4276-bdf0-e02f1f3c665d)
+The base class implements the prediction process in the fuction `Predict()`, which is shared by the two subclasses.
 
-Note that the programs that need to be written to accomplish the project are src/FusionEKF.cpp, src/FusionEKF.h, kalman_filter.cpp, kalman_filter.h, tools.cpp, and tools.h
+```c++
+void KF::Predict(KFState& state, float dt) {
+  // Do no predict if dt is very small.
+  if(dt < 1e-6)
+    return;
 
-The program main.cpp has already been filled out, but feel free to modify it.
+  // Prediction calculation is shared by all subclasses.
+  set_F(dt);
+  set_Q(dt);
+  state.x = F_ * state.x;
+  state.P = F_ * state.P * F_.transpose() + Q_;
 
-Here is the main protcol that main.cpp uses for uWebSocketIO in communicating with the simulator.
+  return;
+}
+```
 
+The function `Predict()` is defined as a pure virtual function in `KF`, and it is up to each subclass to implement the functionality. An update process of the linear kalman filter is implemented in the class `KFLaser` as following.
 
-INPUT: values provided by the simulator to the c++ program
+```c++
+void KFLaser::Update(KFState& state, float dt, const VectorXd &z) {
+  // Calculate Kalman gain
+  MatrixXd K = state.P * H_trans_ * (H_ * state.P * H_trans_ + R_).inverse();
 
-["sensor_measurement"] => the measurement that the simulator observed (either lidar or radar)
+  // Update the state from the measurement.
+  state.x = state.x + K * (z - H_ * state.x);
+  state.P = state.P - K * H_ * state.P;
+  return;
+}
+```
 
+In `KFLaser`, the measurement matrix `H` is a constant, and it is calculated in the constructor. Its transpose matrix `H_trans_` is also calculated in the constructor.
 
-OUTPUT: values provided by the c++ program to the simulator
+An extended kalman filter is implemented in the class `KFRadar`.
+```c++
+void KFRadar::Update(KFState& state, float dt, const VectorXd &z) {
+  // Keep the value of theta in [-pi, pi]
+  VectorXd y(3);
+  y = z - tools.Cartesian2Polar(state.x);
+  float theta = y[1];
+  while(theta > PI)
+    theta -= 2*PI;
+  while(theta < -PI)
+    theta += 2*PI;
+  y[1] = theta;
 
-["estimate_x"] <= kalman filter estimated position x
-["estimate_y"] <= kalman filter estimated position y
-["rmse_x"]
-["rmse_y"]
-["rmse_vx"]
-["rmse_vy"]
+  // Calculate jacobian
+  H_ = tools.CalculateJacobian(state.x);
+  H_trans_ = H_.transpose();
 
----
+  // Calculate Kalman gain
+  MatrixXd K = state.P * H_trans_ * (H_ * state.P * H_trans_ + R_).inverse();
 
-## Other Important Dependencies
+  // Update state and covariant matrices
+  state.x = state.x + K * y;
+  state.P = state.P - K * H_ * state.P;
+  return;
+}
+```
 
-* cmake >= 3.5
-  * All OSes: [click here for installation instructions](https://cmake.org/install/)
-* make >= 4.1 (Linux, Mac), 3.81 (Windows)
-  * Linux: make is installed by default on most Linux distros
-  * Mac: [install Xcode command line tools to get make](https://developer.apple.com/xcode/features/)
-  * Windows: [Click here for installation instructions](http://gnuwin32.sourceforge.net/packages/make.htm)
-* gcc/g++ >= 5.4
-  * Linux: gcc / g++ is installed by default on most Linux distros
-  * Mac: same deal as make - [install Xcode command line tools](https://developer.apple.com/xcode/features/)
-  * Windows: recommend using [MinGW](http://www.mingw.org/)
+The measurement matrix `H_` in this case is not a constant, but rather a jacobian, recalculated each time a new measurement comes in.
+ 
+### Data Encapsulation
 
-## Basic Build Instructions
+The starter code comes with just one kalman filter class that handles both lidar and radar measurement. And many of the kalman filter calculations are done in the class [FusionEKF](https://github.com/udacity/CarND-Extended-Kalman-Filter-Project/blob/master/src/FusionEKF.cpp). However, I decided to move all the calculations into the classes KF and its subclasses for better data encapsulation. And by using the inheritance between the kalman filter classes, I can reuse the code for the prediction process which is common between two types of kalman filters. The convenience comes with a risk thought. If an algorithm with a different prediction method is implemented in the future, the inheritance structure may have to be rewritten.
 
-1. Clone this repo.
-2. Make a build directory: `mkdir build && cd build`
-3. Compile: `cmake .. && make` 
-   * On windows, you may need to run: `cmake .. -G "Unix Makefiles" && make`
-4. Run it: `./ExtendedKF `
+The state vector `x` and the covariant matrix `P` are wrapped in a class `KFState`, and it is passed to the functions `Predict()` and `Update()` by reference, to be updated inside the functions.
 
-## Editor Settings
+```c++
+class KFState {
+public:
+  Eigen::VectorXd x;
+  Eigen::MatrixXd P;
 
-We've purposefully kept editor configuration files out of this repo in order to
-keep it as simple and environment agnostic as possible. However, we recommend
-using the following settings:
+  KFState();
+  virtual ~KFState();
+};
+```
 
-* indent using spaces
-* set tab width to 2 spaces (keeps the matrices in source code aligned)
+Only `x` and `P` are accessible from the class `FusionLaserRadar`, and all other covariant matrices are internal to `KF` and its subclasses. Those matrices are only meaningful during the calculations to update `x` and `P`.
 
-## Code Style
+### Efficiency
 
-Please (do your best to) stick to [Google's C++ style guide](https://google.github.io/styleguide/cppguide.html).
+I have tried to avoid evaluating temporary Eigen matrices, so that the compiler can have more oppotunities to optimize the Eigen template operations. More information on the efficient matrix evaluation can be found [here](http://eigen.tuxfamily.org/dox/TopicWritingEfficientProductExpression.html)
 
-## Generating Additional Data
+I had attempted using matrices with fixed sizes, such as `Matrix4f`, instead of `MatrixXd` because it is supposed to be more efficient with smaller dimensions. According to the [Eigne documentation](https://eigen.tuxfamily.org/dox/group__tutorialmatrixclass.html), the fixed sizes are created in the stack, so it can save time creating objects in the heap. However, I have abandoned that approach because mixing fixed sizes and dynamic sizes produced errors event if the dimensions were correct. Many examples in the starter code uses the dynamic sizes, therefore I kept creating the dynamic sizes unconsciously. This may be also problematic if code is shared by multiple users and others did the same thing as I did.
 
-This is optional!
+In order to reduce the number of object creation and copy assignments, I pass `KFState` by reference as shown above in the functions `ProcessMeasurement()`, `Predict()`, and `Update()`. If I passed them by value, the functions would have looked like this:
 
-If you'd like to generate your own radar and lidar data, see the
-[utilities repo](https://github.com/udacity/CarND-Mercedes-SF-Utilities) for
-Matlab scripts that can generate additional data.
+```c++
+KFState KF::ProcessMeasurement(const KFState& stateIn, float dt, const Eigen::VectorXd& z) {
+  KFState statePred = Predict(stateIn, dt);
+  KFState stateOut = Update(statePred, dt, z);
+  return stateOut;
+}
 
-## Project Instructions and Rubric
+KFState KF::Predict(const KFState& stateIn, float dt) {
+  // Prediction calculation is shared by all subclasses.
+  set_F(dt);
+  set_Q(dt);
 
-Note: regardless of the changes you make, your project must be buildable using
-cmake and make!
+  KFState stateOut;
+  stateOut.x = F_ * stateIn.x;
+  stateOut.P = F_ * stateIn.P * F_.transpose() + Q_;
 
-More information is only accessible by people who are already enrolled in Term 2
-of CarND. If you are enrolled, see [the project resources page](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/f758c44c-5e40-4e01-93b5-1a82aa4e044f/concepts/382ebfd6-1d55-4487-84a5-b6a5a4ba1e47)
-for instructions and the project rubric.
+  return stateOut;
+}
+```
 
-## Hints and Tips!
+There are many intermediate objects created, and they are all created in the heaps because `x` and `P` are of dynamic sizes, leadding to inefficiency. And these functions are called for each measurement, so the inefficiency will add up quickly. Despite the inefficiency, there seems to be an advantage in readability because it shows what each function returns, therefore what it does. In my actual implementation with passing by reference, one of input parameters is being modified within functions, so it is less obvious what each function does for the users of the functions. However, I thought the advantage of avoiding a lot of object creation seemed to outweigh the convenience of the alternative.
 
-* You don't have to follow this directory structure, but if you do, your work
-  will span all of the .cpp files here. Keep an eye out for TODOs.
-* Students have reported rapid expansion of log files when using the term 2 simulator.  This appears to be associated with not being connected to uWebSockets.  If this does occur,  please make sure you are conneted to uWebSockets. The following workaround may also be effective at preventing large log files.
+### Flexibility
 
-    + create an empty log file
-    + remove write permissions so that the simulator can't write to log
- * Please note that the ```Eigen``` library does not initialize ```VectorXd``` or ```MatrixXd``` objects with zeros upon creation.
+The class FusionLaserRadar comes with two private variables, `use_laser_` and `use_radar_`. By changing theit values, one can easily turn on or off either sensors and not use for state estimation. For each measurement, a function `SensorIsOff()` is called to determin whether to use the sensor. From the command line, one can decide which sensor to use as following:
 
-## Call for IDE Profiles Pull Requests
+```bash
+$ ./ExtendedKF        (use both sensors)
+$ ./ExtendedKF L      (use lidar only)
+$ ./ExtendedKF R      (use radar only)
+```
 
-Help your fellow students!
+### Scalability
 
-We decided to create Makefiles with cmake to keep this project as platform
-agnostic as possible. Similarly, we omitted IDE profiles in order to we ensure
-that students don't feel pressured to use one IDE or another.
-
-However! We'd love to help people get up and running with their IDEs of choice.
-If you've created a profile for an IDE that you think other students would
-appreciate, we'd love to have you add the requisite profile files and
-instructions to ide_profiles/. For example if you wanted to add a VS Code
-profile, you'd add:
-
-* /ide_profiles/vscode/.vscode
-* /ide_profiles/vscode/README.md
-
-The README should explain what the profile does, how to take advantage of it,
-and how to install it.
-
-Regardless of the IDE used, every submitted project must
-still be compilable with cmake and make.
-
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
+One aspect of scalable code is easiness of adding new functionality. As long as the state of the system is described by the four dimensional state vector `x (px, py, vx, vy)` and its covariant matrix, a new class of kalman filter can be added as a subclass of `KF`.
+The new class can reuse the `Predict()` function already written in `KF`, and the calls to `Predict()` and `Update()` are already defined in `KF::ProcessMeasurement()`.
+All that needs to be done is to write the function `Update()` for the new clas, add an instance in the class `FusionLaserRadar`, and write a call to the common interface `ProcessMeasurement()`.
 
