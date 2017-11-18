@@ -2,10 +2,10 @@
 #define KALMAN_FILTER_H_
 #include "Eigen/Dense"
 #include "tools.h"
-#include "KF.h"
-#include "KFState.h"
+#include "UKF.h"
+#include "StateCTRV.h"
 
-class KFRadar: public KF {
+class UKFRadar: public UKF {
 public:
 
   // measurement matrix
@@ -18,12 +18,12 @@ public:
   /**
   * Constructor
   */
-  KFRadar();
+  UKFRadar();
 
   /**
   * Destructor
   */
-  virtual ~KFRadar();
+  virtual ~UKFRadar();
 
   /**
    * Updates the state by using Extended Kalman Filter equations
@@ -31,7 +31,7 @@ public:
    * @param dt elapsed time from k to k+1, in seconds
    * @param z The measurement at k+1
    */
-  void Update(KFState& state, float dt, const Eigen::VectorXd &z);
+  void Update(StateCTRV& state, float dt, const Eigen::VectorXd &z);
 
 private:
   Tools tools;

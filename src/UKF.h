@@ -1,9 +1,9 @@
-#ifndef KF_H_
-#define KF_H_
+#ifndef UKF_H_
+#define UKF_H_
 #include "Eigen/Dense"
-#include "KFState.h"
+#include "StateCTRV.h"
 
-class KF {
+class UKF {
 public:
 
   // state transition matrix
@@ -15,12 +15,12 @@ public:
   /**
   * Constructor
   */
-  KF();
+  UKF();
 
   /**
   * Destructor
   */
-  virtual ~KF();
+  virtual ~UKF();
 
   /**
   * Process measurement by calling Predict() and Update()
@@ -28,7 +28,7 @@ public:
   * @param dt elapsed time from k to k+1, in seconds
   * @param z The measurement at k+1
   */
-  void ProcessMeasurement(KFState& state, float dt, const Eigen::VectorXd& z);
+  void ProcessMeasurement(StateCTRV& state, float dt, const Eigen::VectorXd& z);
 
 protected:
   float noise_a_;
@@ -40,7 +40,7 @@ protected:
   * @param state state vector and covariance prior to update
   * @param dt elapsed time from k to k+1, in seconds
   */
-  void Predict(KFState& state, float dt);
+  void Predict(StateCTRV& state, float dt);
 
   /**
   * Subclasses must define how to update the states
@@ -48,7 +48,7 @@ protected:
   * @param dt elapsed time from k to k+1, in seconds
   * @param z The measurement at k+1
   */
-  virtual void Update(KFState& state, float dt, const Eigen::VectorXd& z) = 0;
+  virtual void Update(StateCTRV& state, float dt, const Eigen::VectorXd& z) = 0;
 
   /**
   * Calculate state transition matrix F

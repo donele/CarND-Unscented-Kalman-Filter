@@ -1,8 +1,8 @@
-#ifndef KFState_H_
-#define KFState_H_
+#ifndef StateCTRV_H_
+#define StateCTRV_H_
 #include "Eigen/Dense"
 
-class KFState {
+class StateCTRV {
 public:
   Eigen::VectorXd x;
   Eigen::MatrixXd P;
@@ -10,12 +10,12 @@ public:
   /**
   * Constructor
   */
-  KFState();
+  StateCTRV();
 
   /**
   * Destructor
   */
-  virtual ~KFState();
+  virtual ~StateCTRV();
 };
 
 #endif

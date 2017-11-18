@@ -1,6 +1,6 @@
-#include "FusionLaserRadar.h"
-#include "KFLaser.h"
-#include "KFRadar.h"
+#include "FusionUKF.h"
+#include "UKFLaser.h"
+#include "UKFRadar.h"
 #include <iostream>
 
 using namespace std;
@@ -8,24 +8,24 @@ using namespace std;
 /*
  * Constructor.
  */
-FusionLaserRadar::FusionLaserRadar()
+FusionUKF::FusionUKF()
 :use_laser_(true),
 use_radar_(true),
 is_initialized_(false),
 previous_timestamp_(0) {
-  kfLaser_ = new KFLaser();
-  kfRadar_ = new KFRadar();
+  kfLaser_ = new UKFLaser();
+  kfRadar_ = new UKFRadar();
 }
 
 /**
 * Destructor.
 */
-FusionLaserRadar::~FusionLaserRadar() {
+FusionUKF::~FusionUKF() {
   delete kfLaser_;
   delete kfRadar_;
 }
 
-void FusionLaserRadar::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
+void FusionUKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   if(SensorIsOff(measurement_pack))
     return;
 
@@ -55,13 +55,14 @@ void FusionLaserRadar::ProcessMeasurement(const MeasurementPackage &measurement_
     kfLaser_->ProcessMeasurement(state_, dt, measurement_pack.raw_measurements_);
 
   previous_timestamp_ = measurement_pack.timestamp_;
-
-  // print the output
-  //cout << "x = " << state_.x << endl;
-  //cout << "P = " << state_.P << endl;
 }
 
-bool FusionLaserRadar::SensorIsOff(const MeasurementPackage &measurement_pack) {
+VectorXd FusionUKF::GetStateCV() {
+  VectorXd state(4);
+  return state;
+}
+
+bool FusionUKF::SensorIsOff(const MeasurementPackage &measurement_pack) {
   // Being able to turn off a sensor may be useful for understanding the effect of each sensors.
   if (!use_radar_ && measurement_pack.sensor_type_ == MeasurementPackage::RADAR)
     return true;
@@ -70,7 +71,7 @@ bool FusionLaserRadar::SensorIsOff(const MeasurementPackage &measurement_pack) {
   return false;
 }
 
-void FusionLaserRadar::Init(const MeasurementPackage &measurement_pack) {
+void FusionUKF::Init(const MeasurementPackage &measurement_pack) {
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
     state_.x = tools.Polar2Cartesian(measurement_pack.raw_measurements_);
   }

@@ -1,24 +1,24 @@
-#include "KF.h"
+#include "UKF.h"
 
 using namespace std;
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 
-KF::KF()
+UKF::UKF()
 :noise_a_(9.),
 noise_y_(9.) {
   F_ = MatrixXd::Zero(4, 4);
   Q_ = MatrixXd::Zero(4, 4);
 }
 
-KF::~KF() {}
+UKF::~UKF() {}
 
-void KF::ProcessMeasurement(KFState& state, float dt, const Eigen::VectorXd& z) {
+void UKF::ProcessMeasurement(StateCTRV& state, float dt, const Eigen::VectorXd& z) {
   Predict(state, dt);
   Update(state, dt, z);
 }
 
-void KF::Predict(KFState& state, float dt) {
+void UKF::Predict(StateCTRV& state, float dt) {
   // Do no predict if dt is very small.
   if(dt < 1e-6)
     return;
@@ -32,14 +32,14 @@ void KF::Predict(KFState& state, float dt) {
   return;
 }
 
-void KF::set_F(float dt) {
+void UKF::set_F(float dt) {
   // Calculate state transition matrix F according to the elapsed time.
   F_ = MatrixXd::Identity(4, 4);
   F_(0, 2) = dt;
   F_(1, 3) = dt;
 }
 
-void KF::set_Q(float dt) {
+void UKF::set_Q(float dt) {
   // Calculate process covariance according to the elapsed time.
   float noise_x = 9;
   float noise_y = 9;

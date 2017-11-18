@@ -1,22 +1,22 @@
-#ifndef FusionLaserRadar_H_
-#define FusionLaserRadar_H_
+#ifndef FusionUKF_H_
+#define FusionUKF_H_
 
 #include "measurement_package.h"
-#include "KF.h"
-#include "KFState.h"
+#include "UKF.h"
+#include "StateCTRV.h"
 #include "tools.h"
 
-class FusionLaserRadar {
+class FusionUKF {
 public:
   /**
   * Constructor.
   */
-  FusionLaserRadar();
+  FusionUKF();
 
   /**
   * Destructor.
   */
-  virtual ~FusionLaserRadar();
+  virtual ~FusionUKF();
 
   /**
   * Decide whether to use the laser sensor.
@@ -39,11 +39,16 @@ public:
   void ProcessMeasurement(const MeasurementPackage &measurement_pack);
 
   /**
+   * Get state in Constant Veocity format
+   */
+  Eigen::VectorXd GetStateCV();
+
+  /**
   * Kalman Filter update and prediction math lives in here.
   */
-  KF* kfLaser_;
-  KF* kfRadar_;
-  KFState state_;
+  UKF* kfLaser_;
+  UKF* kfRadar_;
+  StateCTRV state_;
 
 private:
   // Decide which sensor to use (Use both by default)
@@ -66,4 +71,4 @@ private:
 
 };
 
-#endif /* FusionLaserRadar_H_ */
+#endif /* FusionUKF_H_ */

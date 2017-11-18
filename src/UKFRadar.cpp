@@ -1,11 +1,11 @@
-#include "KFRadar.h"
+#include "UKFRadar.h"
 
 using namespace std;
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 const double PI = 3.14159265;
 
-KFRadar::KFRadar() {
+UKFRadar::UKFRadar() {
   // measurement matrix
   H_ = MatrixXd::Zero(3, 4);
   H_trans_ = MatrixXd::Zero(4, 3);
@@ -17,9 +17,9 @@ KFRadar::KFRadar() {
         0,    0,      0.09;
 }
 
-KFRadar::~KFRadar() {}
+UKFRadar::~UKFRadar() {}
 
-void KFRadar::Update(KFState& state, float dt, const VectorXd &z) {
+void UKFRadar::Update(StateCTRV& state, float dt, const VectorXd &z) {
   // Keep the value of theta in [-pi, pi]
   VectorXd y(3);
   y = z - tools.Cartesian2Polar(state.x);

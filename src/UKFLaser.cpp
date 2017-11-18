@@ -1,10 +1,10 @@
-#include "KFLaser.h"
+#include "UKFLaser.h"
 
 using namespace std;
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 
-KFLaser::KFLaser() {
+UKFLaser::UKFLaser() {
   // Measurement matrix.
   H_ = MatrixXd(2, 4);
   H_ << 1, 0, 0, 0,
@@ -18,9 +18,9 @@ KFLaser::KFLaser() {
         0,      0.0225;
 }
 
-KFLaser::~KFLaser() {}
+UKFLaser::~UKFLaser() {}
 
-void KFLaser::Update(KFState& state, float dt, const VectorXd &z) {
+void UKFLaser::Update(StateCTRV& state, float dt, const VectorXd &z) {
   // Calculate Kalman gain
   MatrixXd K = state.P * H_trans_ * (H_ * state.P * H_trans_ + R_).inverse();
 

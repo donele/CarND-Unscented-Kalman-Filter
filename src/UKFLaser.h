@@ -1,9 +1,9 @@
-#ifndef KFLaser_H_
-#define KFLaser_H_
+#ifndef UKFLaser_H_
+#define UKFLaser_H_
 #include "Eigen/Dense"
-#include "KF.h"
+#include "UKF.h"
 
-class KFLaser: public KF {
+class UKFLaser: public UKF {
 public:
 
   // measurement matrix
@@ -16,12 +16,12 @@ public:
   /**
   * Constructor
   */
-  KFLaser();
+  UKFLaser();
 
   /**
   * Destructor
   */
-  virtual ~KFLaser();
+  virtual ~UKFLaser();
 
 private:
   /**
@@ -30,7 +30,7 @@ private:
    * @param dt elapsed time from k to k+1, in seconds
    * @param z The measurement at k+1
    */
-  virtual void Update(KFState& state, float dt, const Eigen::VectorXd& z);
+  virtual void Update(StateCTRV& state, float dt, const Eigen::VectorXd& z);
 };
 
 #endif
