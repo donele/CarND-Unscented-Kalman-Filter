@@ -31,13 +31,30 @@ int main(int argc, char* argv[])
   uWS::Hub h;
 
   // Create a Kalman Filter instance
-  FusionUKF fusion;
-  if(argc == 2 && argv[1][0] == 'L')
+  float std_a = .6;
+  float std_yawdd = .6;
+  float p1 = .15;
+  float p2 = .15;
+  float p3 = .4;
+  float p4 = .01;
+  float p5 = .01;
+  if(argc == 9) {
+    std_a = atof(argv[2]);
+    std_yawdd = atof(argv[3]);
+    p1 = atof(argv[4]);
+    p2 = atof(argv[5]);
+    p3 = atof(argv[6]);
+    p4 = atof(argv[7]);
+    p5 = atof(argv[8]);
+  }
+  printf("%.1f %.1f %.1f %.1f %.1f\n", p1, p2, p3, p4, p5);
+  FusionUKF fusion(std_a, std_yawdd, p1, p2, p3, p4, p5);
+  if(argc >= 2 && argv[1][0] == 'L')
   {
     fusion.UseRadar(false);
     cout << "Using only lidar" << endl;
   }
-  else if(argc == 2 && argv[1][0] == 'R')
+  else if(argc >= 2 && argv[1][0] == 'R')
   {
     fusion.UseLaser(false);
     cout << "Using only radar" << endl;

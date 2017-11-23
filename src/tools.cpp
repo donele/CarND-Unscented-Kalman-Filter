@@ -1,5 +1,5 @@
-#include <iostream>
 #include "tools.h"
+#include <iostream>
 
 using Eigen::VectorXd;
 using Eigen::MatrixXd;
@@ -74,6 +74,20 @@ VectorXd Tools::Polar2Cartesian(const VectorXd& x_state) {
   cart_state(2) = ro_dot * cos(theta);
   cart_state(3) = ro_dot * sin(theta);
   return cart_state;
+}
+
+VectorXd Tools::Polar2CTRV(const VectorXd& x_state) {
+  float ro = x_state(0);
+  float theta = x_state(1);
+  float ro_dot = x_state(2);
+
+  VectorXd state_ctrv(5);
+  state_ctrv(0) = ro * cos(theta);
+  state_ctrv(1) = ro * sin(theta);
+  state_ctrv(2) = 0.;
+  state_ctrv(3) = 0.;
+  state_ctrv(4) = 0.;
+  return state_ctrv;
 }
 
 float Tools::NormalizePi(float angle) {

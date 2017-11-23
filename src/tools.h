@@ -40,6 +40,11 @@ public:
   */
   VectorXd Polar2Cartesian(const VectorXd& x_state);
 
+  /**
+  * A helper method to convert Polar coordinates to CTRV state (px, py, v, psi, psi_dot).
+  */
+  VectorXd Polar2CTRV(const VectorXd& x_state);
+
   float NormalizePi(float angle);
 };
 

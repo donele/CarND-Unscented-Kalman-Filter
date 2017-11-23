@@ -8,13 +8,14 @@ using namespace std;
 /*
  * Constructor.
  */
-FusionUKF::FusionUKF()
+FusionUKF::FusionUKF(float std_a, float std_yawdd, float p1, float p2, float p3, float p4, float p5)
 :use_laser_(true),
 use_radar_(true),
 is_initialized_(false),
 previous_timestamp_(0) {
-  kfLaser_ = new UKFLaser();
-  kfRadar_ = new UKFRadar();
+  kfLaser_ = new UKFLaser(std_a, std_yawdd);
+  kfRadar_ = new UKFRadar(std_a, std_yawdd);
+  state_.P.diagonal() << p1, p2, p3, p4, p5;
 }
 
 /**
@@ -72,11 +73,14 @@ bool FusionUKF::SensorIsOff(const MeasurementPackage &measurement_pack) {
 
 void FusionUKF::Init(const MeasurementPackage &measurement_pack) {
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
-    state_.x = tools.Polar2Cartesian(measurement_pack.raw_measurements_);
+    state_.x = tools.Polar2CTRV(measurement_pack.raw_measurements_);
   }
   else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
-    state_.x << measurement_pack.raw_measurements_[0], measurement_pack.raw_measurements_[1], 0, 0;
+    state_.x << measurement_pack.raw_measurements_[0], measurement_pack.raw_measurements_[1], 0, 0, 0;
   }
+  cout << "Init" << endl;
+  cout << state_.x << endl;
+  cout << state_.P << endl;
 
   previous_timestamp_ = measurement_pack.timestamp_;
 }

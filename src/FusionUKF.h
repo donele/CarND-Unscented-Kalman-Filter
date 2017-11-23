@@ -11,7 +11,7 @@ public:
   /**
   * Constructor.
   */
-  FusionUKF();
+  FusionUKF(float std_a, float std_yawdd, float p1, float p2, float p3, float p4, float p5);
 
   /**
   * Destructor.

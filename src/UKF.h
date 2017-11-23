@@ -1,6 +1,7 @@
 #ifndef UKF_H_
 #define UKF_H_
 #include "Eigen/Dense"
+#include "tools.h"
 #include "StateCTRV.h"
 
 class UKF {
@@ -12,7 +13,7 @@ public:
   /**
   * Constructor
   */
-  UKF();
+  UKF(float std_a, float std_yawdd);
 
   /**
   * Destructor
@@ -28,6 +29,7 @@ public:
   void ProcessMeasurement(StateCTRV& state, float dt, const Eigen::VectorXd& z);
 
 protected:
+  Tools tools;
   float std_a_;
   float std_yawdd_;
 
@@ -36,8 +38,8 @@ protected:
   Eigen::MatrixXd Paug_;
   Eigen::MatrixXd SqrtP_;
   Eigen::MatrixXd Xsig_aug_;
-  Eigen::MatrixXd Xsig_process_time_;
-  Eigen::MatrixXd Xsig_process_noise_;
+  Eigen::MatrixXd Xsig_motion_;
+  Eigen::MatrixXd Xsig_noise_;
   Eigen::MatrixXd Xsig_pred_;
   Eigen::VectorXd weights_;
   Eigen::VectorXd Diff_;

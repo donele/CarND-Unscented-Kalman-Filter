@@ -9,7 +9,7 @@ public:
   /**
   * Constructor
   */
-  UKFLaser();
+  UKFLaser(float std_a, float std_yawdd);
 
   /**
   * Destructor

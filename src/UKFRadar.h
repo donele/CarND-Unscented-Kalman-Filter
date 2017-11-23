@@ -10,7 +10,7 @@ public:
   /**
   * Constructor
   */
-  UKFRadar();
+  UKFRadar(float std_a, float std_yawdd);
 
   /**
   * Destructor
@@ -24,7 +24,7 @@ private:
   float std_radrd_;
   Tools tools;
   Eigen::MatrixXd Zsig_;
-  Eigen::MatrixXd Zpred_;
+  Eigen::VectorXd Zpred_;
   Eigen::MatrixXd S_;
   Eigen::MatrixXd R_;
   Eigen::MatrixXd Tc_;
