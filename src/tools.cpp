@@ -75,3 +75,11 @@ VectorXd Tools::Polar2Cartesian(const VectorXd& x_state) {
   cart_state(3) = ro_dot * sin(theta);
   return cart_state;
 }
+
+float Tools::NormalizePi(float angle) {
+  while(angle < -PI)
+    angle += 2 * PI;
+  while(angle > PI)
+    angle -= 2 * PI;
+  return angle;
+}

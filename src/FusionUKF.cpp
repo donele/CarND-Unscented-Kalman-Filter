@@ -58,8 +58,7 @@ void FusionUKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 }
 
 VectorXd FusionUKF::GetStateCV() {
-  VectorXd state(4);
-  return state;
+  return state_.GetStateCV();
 }
 
 bool FusionUKF::SensorIsOff(const MeasurementPackage &measurement_pack) {

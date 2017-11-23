@@ -16,6 +16,8 @@ public:
   * Destructor
   */
   virtual ~StateCTRV();
+
+  Eigen::VectorXd GetStateCV();
 };
 
 #endif

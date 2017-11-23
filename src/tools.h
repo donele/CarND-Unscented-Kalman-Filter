@@ -6,6 +6,7 @@
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 using namespace std;
+const double PI = 3.14159265;
 
 class Tools {
 public:
@@ -39,6 +40,7 @@ public:
   */
   VectorXd Polar2Cartesian(const VectorXd& x_state);
 
+  float NormalizePi(float angle);
 };
 
 #endif /* TOOLS_H_ */

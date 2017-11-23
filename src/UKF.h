@@ -5,12 +5,9 @@
 
 class UKF {
 public:
-
-  // state transition matrix
-  Eigen::MatrixXd F_;
-
-  // process covariance matrix
-  Eigen::MatrixXd Q_;
+  int n_x;
+  int n_aug;
+  double lambda;
 
   /**
   * Constructor
@@ -31,8 +28,19 @@ public:
   void ProcessMeasurement(StateCTRV& state, float dt, const Eigen::VectorXd& z);
 
 protected:
-  float noise_a_;
-  float noise_y_;
+  float std_a_;
+  float std_yawdd_;
+
+  // sigma point
+  Eigen::VectorXd Xaug_;
+  Eigen::MatrixXd Paug_;
+  Eigen::MatrixXd SqrtP_;
+  Eigen::MatrixXd Xsig_aug_;
+  Eigen::MatrixXd Xsig_process_time_;
+  Eigen::MatrixXd Xsig_process_noise_;
+  Eigen::MatrixXd Xsig_pred_;
+  Eigen::VectorXd weights_;
+  Eigen::VectorXd Diff_;
 
   /**
   * Prediction Predicts the state and the state covariance
@@ -49,18 +57,6 @@ protected:
   * @param z The measurement at k+1
   */
   virtual void Update(StateCTRV& state, float dt, const Eigen::VectorXd& z) = 0;
-
-  /**
-  * Calculate state transition matrix F
-  * @param dt elapsed time from k to k+1, in seconds
-  */
-  void set_F(float dt);
-
-  /**
-  * Calculate process covariance
-  * @param dt elapsed time from k to k+1, in seconds
-  */
-  void set_Q(float dt);
 };
 
 #endif

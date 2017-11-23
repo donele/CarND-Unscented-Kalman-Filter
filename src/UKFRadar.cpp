@@ -3,42 +3,71 @@
 using namespace std;
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
-const double PI = 3.14159265;
 
-UKFRadar::UKFRadar() {
-  // measurement matrix
-  H_ = MatrixXd::Zero(3, 4);
-  H_trans_ = MatrixXd::Zero(4, 3);
+UKFRadar::UKFRadar()
+  :n_z_(3),
+  std_radr_(.3),
+  std_radphi_(.03),
+  std_radrd_(.3)
+{
+  Zsig_ = MatrixXd(n_z_, 2 * n_aug + 1);
+  Zpred_ = MatrixXd(n_z_, 2 * n_aug + 1);
+  S_ = MatrixXd(n_z_, n_z_);
+  Tc_ = MatrixXd(n_z_, n_z_);
 
   // measurement noise
-  R_ = MatrixXd(3, 3);
-  R_ << 0.09, 0,      0,
-        0,    0.0009, 0,
-        0,    0,      0.09;
+  R_ = MatrixXd(n_z_, n_z_);
+  R_.diagonal() << std_radr_*std_radr_, std_radphi_*std_radphi_, std_radrd_*std_radrd_;
 }
 
 UKFRadar::~UKFRadar() {}
 
 void UKFRadar::Update(StateCTRV& state, float dt, const VectorXd &z) {
-  // Keep the value of theta in [-pi, pi]
-  VectorXd y(3);
-  y = z - tools.Cartesian2Polar(state.x);
-  float theta = y[1];
-  while(theta > PI)
-    theta -= 2*PI;
-  while(theta < -PI)
-    theta += 2*PI;
-  y[1] = theta;
+  // Transform sigma points into measurement space
+  for(int i = 0; i < 2 * n_aug + 1; ++i) {
+    float px = Xsig_pred_.col(i)[0];
+    float py = Xsig_pred_.col(i)[1];
+    float v = Xsig_pred_.col(i)[2];
+    float psi = Xsig_pred_.col(i)[3];
 
-  // Calculate jacobian
-  H_ = tools.CalculateJacobian(state.x);
-  H_trans_ = H_.transpose();
+    float rho = sqrt(px*px + py*py);
+    float phi = tools.NormalizePi(atan2(py, px));
+    float rho_dot = (px * cos(psi) * v + py * sin(psi) * v) / rho;
+    Zsig_.col(i) << rho, phi, rho_dot;
+  }
 
-  // Calculate Kalman gain
-  MatrixXd K = state.P * H_trans_ * (H_ * state.P * H_trans_ + R_).inverse();
+  // Calculate mean predicted measurement
+  Zpred_.setZero();
+  for(int i = 0; i < 2 * n_aug + 1; ++i) {
+    Zpred_ += weights_[i] * Zsig_.col(i);
+  }
 
-  // Update state and covariance matrices
-  state.x = state.x + K * y;
-  state.P = state.P - K * H_ * state.P;
+  // Calculate measurement covariance matrix S
+  for(int i = 0; i < 2 * n_aug + 1; ++i) {
+    Diff_z_ = Zsig_.col(i) - Zpred_;
+    Diff_z_(1) = tools.NormalizePi(Diff_z_(1));
+    S_ += weights_[i] * Diff_z_ * Diff_z_.transpose();
+  }
+  S_ += R_;
+
+  // Calculate cross correlation matrix
+  Tc_.setZero();
+  for(int i = 0; i < 2 * n_aug + 1; ++i) {
+    Diff_ = Xsig_pred_.col(i).head(n_x) - state.x;
+    Diff_(1) = tools.NormalizePi(Diff_(1));
+
+    Diff_z_ = Zsig_.col(i) - Zpred_;
+    Diff_z_(1) = tools.NormalizePi(Diff_z_(1));
+
+    Tc_ += weights_[i] * Diff_ * Diff_z_.transpose();
+  }
+
+  // Calculate Kalman gain K
+  K_ = Tc_ * S_.inverse();
+
+  // Update state mean and covariance matrix
+  state.x += K_ * (z - Zpred_);
+  state.P -= K_ * S_ * K_.transpose();
+
   return;
 }

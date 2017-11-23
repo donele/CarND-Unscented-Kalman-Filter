@@ -7,14 +7,6 @@
 
 class UKFRadar: public UKF {
 public:
-
-  // measurement matrix
-  Eigen::MatrixXd H_;
-  Eigen::MatrixXd H_trans_;
-
-  // measurement covariance matrix
-  Eigen::MatrixXd R_;
-
   /**
   * Constructor
   */
@@ -25,6 +17,20 @@ public:
   */
   virtual ~UKFRadar();
 
+private:
+  int n_z_;
+  float std_radr_;
+  float std_radphi_;
+  float std_radrd_;
+  Tools tools;
+  Eigen::MatrixXd Zsig_;
+  Eigen::MatrixXd Zpred_;
+  Eigen::MatrixXd S_;
+  Eigen::MatrixXd R_;
+  Eigen::MatrixXd Tc_;
+  Eigen::MatrixXd Diff_z_;
+  Eigen::MatrixXd K_;
+
   /**
    * Updates the state by using Extended Kalman Filter equations
    * @param state state vector and covariance prior to update
@@ -32,9 +38,6 @@ public:
    * @param z The measurement at k+1
    */
   void Update(StateCTRV& state, float dt, const Eigen::VectorXd &z);
-
-private:
-  Tools tools;
 };
 
 #endif
