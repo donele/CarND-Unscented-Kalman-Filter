@@ -7,7 +7,7 @@ Measurements from a radar and a lidar are combined.
 
 A CTRV state is given by
 
-$$x = [p_x, p_y, v, \psi, \dot{\psi}]^T,$$
+\[x = [p_x, p_y, v, \psi, \dot{\psi}]^T,\]
 
 and $$P$$ is its covariance matrix. The dynamic system of the state is given by
 
