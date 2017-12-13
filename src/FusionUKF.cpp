@@ -8,14 +8,14 @@ using namespace std;
 /*
  * Constructor.
  */
-FusionUKF::FusionUKF(float std_a, float std_yawdd, float p1, float p2, float p3, float p4, float p5)
+FusionUKF::FusionUKF(float std_a, float std_yawdd, float s1, float s2, float s3, float s4, float s5)
 :use_laser_(true),
 use_radar_(true),
 is_initialized_(false),
 previous_timestamp_(0) {
   kfLaser_ = new UKFLaser(std_a, std_yawdd);
   kfRadar_ = new UKFRadar(std_a, std_yawdd);
-  state_.P.diagonal() << p1, p2, p3, p4, p5;
+  state_.P.diagonal() << s1*s1, s2*s2, s3*s3, s4*s4, s5*s5;
 }
 
 /**

@@ -31,24 +31,24 @@ int main(int argc, char* argv[])
   uWS::Hub h;
 
   // Create a Kalman Filter instance
-  float std_a = .6;
-  float std_yawdd = .6;
-  float p1 = .15;
-  float p2 = .15;
-  float p3 = .4;
-  float p4 = .01;
-  float p5 = .01;
+  float std_a = .25;
+  float std_yawdd = .45;
+  float s1 = .15;
+  float s2 = .15;
+  float s3 = 2.5;
+  float s4 = 1.5;
+  float s5 = 0.45;
   if(argc == 9) {
     std_a = atof(argv[2]);
     std_yawdd = atof(argv[3]);
-    p1 = atof(argv[4]);
-    p2 = atof(argv[5]);
-    p3 = atof(argv[6]);
-    p4 = atof(argv[7]);
-    p5 = atof(argv[8]);
+    s1 = atof(argv[4]);
+    s2 = atof(argv[5]);
+    s3 = atof(argv[6]);
+    s4 = atof(argv[7]);
+    s5 = atof(argv[8]);
   }
-  printf("%.1f %.1f %.1f %.1f %.1f\n", p1, p2, p3, p4, p5);
-  FusionUKF fusion(std_a, std_yawdd, p1, p2, p3, p4, p5);
+  printf("%.1f %.1f %.1f %.1f %.1f\n", s1, s2, s3, s4, s5);
+  FusionUKF fusion(std_a, std_yawdd, s1, s2, s3, s4, s5);
   if(argc >= 2 && argv[1][0] == 'L')
   {
     fusion.UseRadar(false);
