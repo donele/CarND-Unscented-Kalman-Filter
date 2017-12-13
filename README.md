@@ -1,9 +1,11 @@
 # Unscented Kalman Filter Project
 Self-Driving Car Engineer Nanodegree Program
 
-An [Unscented Kalman Filter](https://www.seas.harvard.edu/courses/cs281/papers/unscented.pdf) is impelmented to estimate the state of a moving object.
-A constant turn rate and velocity magnitude model (CTRV) is used to represent the state.
-Measurements from a radar and a lidar are combined.
+An [Unscented Kalman Filter](https://www.seas.harvard.edu/courses/cs281/papers/unscented.pdf) is impelmented to estimate the state of a moving object. In the previous project, I have put together a set of classes that separates the implementaion specifics of two sensors. I am using a similar structure in this project, rather than using the provided file structure.
+
+A class `FusionUKF` is created in the `main` function. The kalman filter algorithms are implemented in the classes `UKFRadar` and `UKFLaser`. The two classes inherits from `UKF` that implements some common functionalities.
+
+A constant turn rate and velocity magnitude model (CTRV) is used to represent the state. The state is imeplemented in the class `StateCTRV`. An instance of `StateCTRV` is created as a private member of `FusionUKF`. The reference to the state is passed to the member functions of `UKF` and its subclasses to be updated.
 
 ## Tuning Process Noise
 
@@ -17,6 +19,8 @@ According to a [study](https://www.pdx.edu/ibpi/sites/www.pdx.edu.ibpi/files/Bic
 
 The first measurement is used to set the location values p_x and p_y of the state vector. The other values, v, psi, and psi_dot are set to zeros.
 
+The covariance matrix `P` is initialized as a diagonal matrix. `P_11` and `P_22` are the uncertainties for the locations. I set the values as the standard deviations of lidar measurements, which is 0.15. The third diagonal element `P_33` is the uncertainty for the velocity. I set the value as half of the average speed of a bicycle quoted above, 2.5 m/s. The fourth element is the uncertainty of the yaw angle. The full range of the angle is `2 * pi`, roughly 6.3. I take about a quarter of the value, 1.5, as its initial value. The final element is the uncertainty of the change rate of yaw angle. I use the same value as `std_yawdd_`, 0.45.
+
 ## Result
 
 
@@ -24,9 +28,19 @@ The RMSE of the kalman filters for the first data set is as following.
 
 |           |px       |py      |vx      |vy      |
 |:---------:|:-------:|:------:|:------:|:------:|
-|Laser+Radar|0.0600   |0.0937  |0.3847  |0.2600  |
-|Laser only |0.1648   |0.1057  |0.5223  |0.3285  |
-|Radar only |0.2111   |0.2597  |0.4648  |0.3088  |
+|Laser+Radar|0.0599   |0.0939  |0.3789  |0.2409  |
+|Laser only |0.1588   |0.1475  |0.3991  |0.2410  |
+|Radar only |0.2097   |0.2164  |0.4502  |0.2293  |
+
+When only one of the sensors is used, laser does better job at determining the location, as expected.
+
+For comparison, below is the result from the extended kalman filter.
+
+|           |px       |py      |vx      |vy      |
+|:---------:|:-------:|:------:|:------:|:------:|
+|Laser+Radar|0.0983   |0.0852  |0.4071  |0.4682  |
+
+The unscented kalman filter redueces the location error by about 16%, and the speed error by 29%, compared to the extended kalman filter.
 
 
 
