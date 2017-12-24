@@ -1,9 +1,9 @@
 # Unscented Kalman Filter Project
 Self-Driving Car Engineer Nanodegree Program
 
-An [Unscented Kalman Filter](https://www.seas.harvard.edu/courses/cs281/papers/unscented.pdf) is impelmented to estimate the state of a moving object. In the previous project, I have put together a set of classes that separates the implementaion specifics of two sensors. I am using a similar structure in this project, rather than using the provided file structure.
+An [Unscented Kalman Filter](https://www.seas.harvard.edu/courses/cs281/papers/unscented.pdf) is impelmented to estimate the state of a moving object. In the previous project, I have put together a set of classes that separates the implementaion specifics of radar and laser measurements. I am using a similar structure in this project, rather than using the provided file structure.
 
-A class `FusionUKF` is created in the `main` function. The kalman filter algorithms are implemented in the classes `UKFRadar` and `UKFLaser`. The two classes inherits from `UKF` that implements some common functionalities.
+A class `FusionUKF` is created and used in the `main` function. The kalman filter algorithms are implemented in the classes `UKFRadar` and `UKFLaser`. The two classes inherits from `UKF` that implements some common functionalities.
 
 A constant turn rate and velocity magnitude model (CTRV) is used to represent the state. The state is imeplemented in the class `StateCTRV`. An instance of `StateCTRV` is created as a private member of `FusionUKF`. The reference to the state is passed to the member functions of `UKF` and its subclasses to be updated.
 
