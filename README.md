@@ -7,6 +7,11 @@ A class `FusionUKF` is created in the `main` function. The kalman filter algorit
 
 A constant turn rate and velocity magnitude model (CTRV) is used to represent the state. The state is imeplemented in the class `StateCTRV`. An instance of `StateCTRV` is created as a private member of `FusionUKF`. The reference to the state is passed to the member functions of `UKF` and its subclasses to be updated.
 
+[imageRadar]: ./radar.png "nis_radar"
+[imageLaser]: ./laser.png "nis_laser"
+
+## [Rubric](https://review.udacity.com/#!/rubrics/783/view) Points
+
 ## Tuning Process Noise
 
 The process noise `std_a_` and `std_yawdd_` are free parameters that need to be tuned.
@@ -41,6 +46,16 @@ For comparison, below is the result from the extended kalman filter.
 |Laser+Radar|0.0983   |0.0852  |0.4071  |0.4682  |
 
 The unscented kalman filter redueces the location error by about 16%, and the speed error by 29%, compared to the extended kalman filter.
+
+## Normalized Innovation Squared (NIS)
+
+NIS can be used to measure the consistency of the estimated uncertainty and the measurements. The NIS value follows the chi square distribution. The radar measurement has the degree of freedom of three, and the chi square distribution with ndof = 3 predicts 95% of the data under NIS = 7.8. Following plot shows that 95.6% of the radar measurements have the NIS value under 7.8.
+
+![alt_text][imageRadar]
+
+The laser measurement, with ndof = 2, is expected to have NIS under 6.0 with 95% probability. The actual measurement had 96.8% of data points under the value.
+
+![alt_text][imageLaser]
 
 
 
