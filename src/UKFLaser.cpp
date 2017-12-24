@@ -47,6 +47,9 @@ void UKFLaser::Update(StateCTRV& state, float dt, const VectorXd &z) {
   }
   S_ += R_;
 
+  // Calculate NIS
+  NIS = (z - Zpred_).transpose() * S_.inverse() * (z - Zpred_);
+
   // Calculate cross correlation matrix
   Tc_.setZero();
   for(int i = 0; i < 2 * n_aug + 1; ++i) {

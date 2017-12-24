@@ -9,6 +9,7 @@ public:
   int n_x;
   int n_aug;
   double lambda;
+  float NIS;
 
   /**
   * Constructor

@@ -50,10 +50,14 @@ void FusionUKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
    ****************************************************************************/
   float dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1000000.;
 
-  if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR)
+  if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
     kfRadar_->ProcessMeasurement(state_, dt, measurement_pack.raw_measurements_);
-  else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER)
+    cout << "NIS R\t" << kfRadar_->NIS << "\n";
+  }
+  else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
     kfLaser_->ProcessMeasurement(state_, dt, measurement_pack.raw_measurements_);
+    cout << "NIS L\t" << kfLaser_->NIS << "\n";
+  }
 
   previous_timestamp_ = measurement_pack.timestamp_;
 }

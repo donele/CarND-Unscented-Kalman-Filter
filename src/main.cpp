@@ -133,7 +133,7 @@ int main(int argc, char* argv[])
           ground_truth.push_back(gt_values);
 
           //Call ProcessMeasurment(meas_package) for Kalman filter
-          fusion.ProcessMeasurement(meas_package);        
+          fusion.ProcessMeasurement(meas_package);
 
           //Push the current estimated x,y positon from the Kalman filter's state vector
           VectorXd estimate = fusion.GetStateCV();
