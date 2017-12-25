@@ -51,11 +51,11 @@ void UKF::Predict(StateCTRV& state, float dt) {
 
   // Calculate sigma points predictions
   for(int i = 0; i < 2 * n_aug + 1; ++i) {
-    float v = Xsig_aug_.col(i)[2];
-    float psi = Xsig_aug_.col(i)[3];
-    float psi_dot = Xsig_aug_.col(i)[4];
-    float nu_a = Xsig_aug_.col(i)[5];
-    float nu_psi = Xsig_aug_.col(i)[6];
+    const float v = Xsig_aug_.col(i)[2];
+    const float psi = Xsig_aug_.col(i)[3];
+    const float psi_dot = Xsig_aug_.col(i)[4];
+    const float nu_a = Xsig_aug_.col(i)[5];
+    const float nu_psi = Xsig_aug_.col(i)[6];
     if(psi_dot < 1e-2 && psi_dot > -1e-2) {
       Xsig_motion_.col(i) << v * cos(psi) * dt,
                              v * sin(psi) * dt,
