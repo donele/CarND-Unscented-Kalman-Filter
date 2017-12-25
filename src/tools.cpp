@@ -58,7 +58,9 @@ VectorXd Tools::Cartesian2Polar(const VectorXd& x_state) {
 
   VectorXd polar_state(3);
   polar_state(0) = c;
-  polar_state(1) = atan2(py, px);
+  polar_state(1) = 0.;
+  if(fabs(px) < 1e-6 && fabs(py) < 1e-6)
+    polar_state(1) = atan2(py, px);
   polar_state(2) = (c > 1e-6) ? (px*vx + py*vy) / c : 0;
   return polar_state;
 }
